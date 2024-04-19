@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/orders/view")
 public class OrderViewController {
@@ -23,6 +25,16 @@ public class OrderViewController {
             return ResponseEntity.ok(order);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+        List<OrderDTO> orders = orderService.findAllOrders();
+        if (orders != null && !orders.isEmpty()) {
+            return ResponseEntity.ok(orders);
+        } else {
+            return ResponseEntity.noContent().build();  // Return 204 No Content if there are no orders
         }
     }
 }

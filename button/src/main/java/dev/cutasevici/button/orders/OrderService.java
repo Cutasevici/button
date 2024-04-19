@@ -142,4 +142,10 @@ public class OrderService {
                 .map(this::convertToOrderDTO)
                 .orElse(null);  // Return null if the order is not found
     }
+
+    public List<OrderDTO> findAllOrders() {
+        List<Order> orders = orderRepository.findAll();  // Assuming you have a method to fetch all orders
+        return orders.stream().map(this::convertToOrderDTO).collect(Collectors.toList());
+    }
+
 }
