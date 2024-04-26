@@ -50,27 +50,12 @@ public class OrderService {
         return true;
     }
     @Transactional
-    public OrderDTO updateOrder(Long orderId, OrderDTO orderDTO) {
+    public OrderDTO updateOrder(Long orderId, List<ItemDTO> itemsDto, String action) {
         Order order = orderRepository.findById(Math.toIntExact(orderId))
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
 
-        // Map existing items for quick lookup
-        Map<Integer, OrderItem> existingItemsMap = new HashMap<>();
-        for (OrderItem orderItem : order.getOrderItems()) {
-            existingItemsMap.put(orderItem.getItem().getItemId(), orderItem);
-        }
-
-        Set<OrderItem> updatedItems = new HashSet<>();
-
-        // Check each DTO item to see if it should be added or already exists
-        for (ItemDTO dto : orderDTO.getItems()) {
-            OrderItem existingItem = existingItemsMap.get(dto.getItemId());
-            if (existingItem != null) {
-                // Item already exists, retain it in the order
-                updatedItems.add(existingItem);
-                existingItemsMap.remove(dto.getItemId()); // Remove from map to prevent deletion
-            } else {
-                // Item does not exist, create a new OrderItem
+        if (action.equals("add")) {
+            for (ItemDTO dto : itemsDto) {
                 Item newItem = new Item();
                 newItem.setItemId(dto.getItemId());
                 newItem.setItemName(dto.getItemName());
@@ -80,18 +65,15 @@ public class OrderService {
                 newOrderItem.setItem(newItem);
                 newOrderItem.setQuantity(1); // Adjust quantity as necessary
                 newOrderItem.setOrder(order);
-                updatedItems.add(newOrderItem);
+                order.getOrderItems().add(newOrderItem);
             }
+        } else if (action.equals("delete")) {
+            order.getOrderItems().removeIf(orderItem -> itemsDto.stream()
+                    .anyMatch(dto -> dto.getItemId() == orderItem.getItem().getItemId()));
         }
 
-        // Remove items not included in the new DTO list
-        existingItemsMap.values().forEach(order.getOrderItems()::remove);
-
-        // Add all retained and new items to the order
-        order.getOrderItems().addAll(updatedItems);
-
-        // Optionally recalculate the total if necessary
-        int newTotal = updatedItems.stream()
+        // Recalculate the total
+        int newTotal = order.getOrderItems().stream()
                 .mapToInt(item -> item.getItem().getItemPrice() * item.getQuantity())
                 .sum();
         order.setTotal(newTotal);
