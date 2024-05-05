@@ -2,6 +2,8 @@ package dev.cutasevici.button.orders;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface OrderRepository extends JpaRepository<Order, Integer> {
-    // You can define custom database queries here if needed
+    List<Order> findAllByStatusNot(String status);
 }

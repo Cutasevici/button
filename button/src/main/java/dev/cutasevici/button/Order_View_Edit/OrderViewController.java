@@ -4,10 +4,7 @@ import dev.cutasevici.button.orders.OrderDTO;
 import dev.cutasevici.button.orders.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,6 +32,26 @@ public class OrderViewController {
             return ResponseEntity.ok(orders);
         } else {
             return ResponseEntity.noContent().build();  // Return 204 No Content if there are no orders
+        }
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<OrderDTO>> getOrdersByStatus(@PathVariable String status) {
+        List<OrderDTO> orders = orderService.findOrdersByStatus(status);
+        if (orders != null && !orders.isEmpty()) {
+            return ResponseEntity.ok(orders);
+        } else {
+            return ResponseEntity.noContent().build();  // Return 204 No Content if there are no orders
+        }
+    }
+
+    @PutMapping("/{orderId}/close")
+    public ResponseEntity<OrderDTO> closeOrder(@PathVariable Long orderId) {
+        try {
+            OrderDTO updatedOrder = orderService.closeOrder(orderId);
+            return ResponseEntity.ok(updatedOrder);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }

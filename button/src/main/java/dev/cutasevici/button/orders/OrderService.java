@@ -130,4 +130,18 @@ public class OrderService {
         return orders.stream().map(this::convertToOrderDTO).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<OrderDTO> findOrdersByStatus(String status) {
+        List<Order> orders = orderRepository.findAllByStatusNot(status);  // Assuming you have a method to fetch all orders by status
+        return orders.stream().map(this::convertToOrderDTO).collect(Collectors.toList());
+    }
+
+    public OrderDTO closeOrder(Long orderId) {
+        Order order = orderRepository.findById(Math.toIntExact(orderId))
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+        order.setStatus("closed");
+        orderRepository.save(order);
+        return convertToOrderDTO(order);  // Assuming you have a method to convert Order to OrderDTO
+    }
+
 }
