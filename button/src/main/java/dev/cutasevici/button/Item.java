@@ -19,14 +19,18 @@ public class Item {
     @Column(name = "item_price")  // Exact column name in your database
     private int itemPrice;
 
+    @Column(name = "item_type")
+    private String itemType;
+
     // Default constructor
     public Item() {}
 
     // Full constructor
-    public Item(int itemId, String itemName, int itemPrice) {
+    public Item(int itemId, String itemName, int itemPrice, String itemType) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.itemPrice = itemPrice;
+        this.itemType = itemType;
     }
 
     // Getters and setters
@@ -53,4 +57,8 @@ public class Item {
     public void setItemPrice(int itemPrice) {
         this.itemPrice = itemPrice;
     }
+
+    public String getItemType() {return itemType;}
+
+    public void setItemType(String itemType) {this.itemType = itemType;}
 }

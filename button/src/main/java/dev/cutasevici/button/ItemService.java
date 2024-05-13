@@ -24,7 +24,7 @@ public class ItemService {
             return null;
         }
         log.debug("Item found: {}", item);
-        return new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice());
+        return new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemType());
     }
 
 
@@ -33,7 +33,7 @@ public class ItemService {
     public List<ItemDTO> getAllItems() {
         List<Item> items = itemRepository.findAll();
         return items.stream()
-                .map(item -> new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice()))
+                .map(item -> new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemType()))
                 .collect(Collectors.toList());
     }
 }

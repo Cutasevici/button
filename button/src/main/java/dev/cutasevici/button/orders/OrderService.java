@@ -103,7 +103,7 @@ public class OrderService {
                     .map(orderItem -> {
                         if (orderItem != null && orderItem.getItem() != null) {
                             Item item = orderItem.getItem();
-                            return new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice());
+                            return new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemType());
                         } else {
                             logger.error("Null OrderItem or Item found while converting to ItemDTO");
                             return null;

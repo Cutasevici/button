@@ -97,6 +97,6 @@ public class Order {
 
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
-        orderItem.setOrder(this);  // This sets the bi-directional link
+        orderItem.setOrder(this);  // This sets the bidirectional link
     }
 }

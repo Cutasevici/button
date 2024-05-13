@@ -5,14 +5,17 @@ public class ItemDTO {
     private String itemName;
     private int itemPrice;
 
+    private String itemType;
+
     // Constructors
     public ItemDTO() {
     }
 
-    public ItemDTO(int itemId, String itemName, int itemPrice) {
+    public ItemDTO(int itemId, String itemName, int itemPrice, String itemType) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.itemPrice = itemPrice;
+        this.itemType = itemType;
     }
 
     // Getters and Setters
@@ -38,6 +41,14 @@ public class ItemDTO {
 
     public void setItemPrice(int itemPrice) {
         this.itemPrice = itemPrice;
+    }
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(String itemType) {
+        this.itemType = itemType;
     }
 
     // toString method

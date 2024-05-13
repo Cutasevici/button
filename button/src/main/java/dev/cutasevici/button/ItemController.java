@@ -1,4 +1,5 @@
 package dev.cutasevici.button;
+import dev.cutasevici.button.Response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,5 +42,11 @@ public class ItemController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(items);
+    }
+
+    @GetMapping("/api/ping")
+    public ResponseEntity<ApiResponse> ping() {
+        log.info("Ping received");
+        return ResponseEntity.ok(new ApiResponse(true, "Pong!"));
     }
 }
