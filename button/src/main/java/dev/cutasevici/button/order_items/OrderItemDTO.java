@@ -6,6 +6,8 @@ public class OrderItemDTO {
     private ItemDTO item;
     private int quantity;
 
+    private String itemCommentary;
+
     // Constructors
     public OrderItemDTO() {
     }
@@ -13,6 +15,7 @@ public class OrderItemDTO {
     public OrderItemDTO(ItemDTO item, int quantity) {
         this.item = item;
         this.quantity = quantity;
+        this.itemCommentary = itemCommentary;
     }
 
     // Getters and Setters
@@ -32,12 +35,21 @@ public class OrderItemDTO {
         this.quantity = quantity;
     }
 
+    public String getItemCommentary() {
+        return itemCommentary;
+    }
+
+    public void setItemCommentary(String itemCommentary) {
+        this.itemCommentary = itemCommentary;
+    }
+
     // toString method
     @Override
     public String toString() {
         return "OrderItemDTO{" +
                 "item=" + item +
                 ", quantity=" + quantity +
+                ", itemCommentary='" + itemCommentary + '\'' +
                 '}';
     }
 }

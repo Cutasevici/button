@@ -18,7 +18,7 @@ public class ItemService {
 
     public ItemDTO getItemById(int id) {
         log.debug("Fetching item with ID: {}", id);
-        Item item = itemRepository.findById(id).orElse(null);
+        dev.cutasevici.button.Item item = itemRepository.findById(id).orElse(null);
         if (item == null) {
             log.debug("No item found with ID: {}", id);
             return null;
@@ -27,11 +27,8 @@ public class ItemService {
         return new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemType());
     }
 
-
-
-
     public List<ItemDTO> getAllItems() {
-        List<Item> items = itemRepository.findAll();
+        List<dev.cutasevici.button.Item> items = itemRepository.findAll();
         return items.stream()
                 .map(item -> new ItemDTO(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemType()))
                 .collect(Collectors.toList());

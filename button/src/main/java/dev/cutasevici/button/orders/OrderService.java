@@ -1,4 +1,5 @@
 package dev.cutasevici.button.orders;
+import dev.cutasevici.button.Tikets.TicketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -21,10 +22,14 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private TicketService ticketService; // Add this line
+
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     @Transactional
     public boolean createOrder(List<ItemDTO> itemsDto) {
+
         Order order = new Order();
         Set<OrderItem> orderItems = new HashSet<>();
         int total = 0; // Initialize total
@@ -38,6 +43,7 @@ public class OrderService {
 
             orderItem.setItem(item);
             orderItem.setQuantity(1); // Example quantity
+            orderItem.setItemCommentary(dto.getItemCommentary());
             orderItem.setOrder(order);
             orderItems.add(orderItem);
 
@@ -47,29 +53,45 @@ public class OrderService {
         order.setOrderItems(orderItems); // Set the items
         order.setTotal(total); // Set the calculated total
         orderRepository.save(order); // Save the order
+        OrderDTO orderDto = convertToOrderDTO(order);
+        ticketService.createTicket(orderDto, itemsDto);
+
         return true;
     }
+
+
     @Transactional
     public OrderDTO updateOrder(Long orderId, List<ItemDTO> itemsDto, String action) {
+        logger.info("Starting updateOrder method. OrderId: {}, Action: {}", orderId, action);
+
         Order order = orderRepository.findById(Math.toIntExact(orderId))
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
 
-        if (action.equals("add")) {
-            for (ItemDTO dto : itemsDto) {
-                Item newItem = new Item();
-                newItem.setItemId(dto.getItemId());
-                newItem.setItemName(dto.getItemName());
-                newItem.setItemPrice(dto.getItemPrice());
+        if ("add".equals(action)) {
+            Map<Integer, OrderItem> existingItemsMap = order.getOrderItems().stream()
+                    .collect(Collectors.toMap(item -> item.getItem().getItemId(), item -> item));
 
-                OrderItem newOrderItem = new OrderItem();
-                newOrderItem.setItem(newItem);
-                newOrderItem.setQuantity(1); // Adjust quantity as necessary
-                newOrderItem.setOrder(order);
-                order.getOrderItems().add(newOrderItem);
+            for (ItemDTO dto : itemsDto) {
+                OrderItem existingOrderItem = existingItemsMap.get(dto.getItemId());
+
+                if (existingOrderItem == null) {
+                    // Item does not exist, create new and add to order
+                    Item newItem = new Item();
+                    newItem.setItemId(dto.getItemId());
+                    newItem.setItemName(dto.getItemName());
+                    newItem.setItemPrice(dto.getItemPrice());
+
+                    OrderItem newOrderItem = new OrderItem();
+                    newOrderItem.setItem(newItem);
+                    newOrderItem.setQuantity(1); // Adjust quantity as necessary
+                    newOrderItem.setItemCommentary(dto.getItemCommentary()); // Set item commentary only for new items
+                    newOrderItem.setOrder(order);
+                    order.getOrderItems().add(newOrderItem);
+                } else {
+                    // For existing items, update quantity but not commentary
+                    existingOrderItem.setQuantity(existingOrderItem.getQuantity() + 1);
+                }
             }
-        } else if (action.equals("delete")) {
-            order.getOrderItems().removeIf(orderItem -> itemsDto.stream()
-                    .anyMatch(dto -> dto.getItemId() == orderItem.getItem().getItemId()));
         }
 
         // Recalculate the total
@@ -79,8 +101,10 @@ public class OrderService {
         order.setTotal(newTotal);
 
         orderRepository.save(order);
-
-        return convertToOrderDTO(order); // Return the updated OrderDTO
+        logger.info("Order updated successfully. OrderId: {}", orderId);
+        OrderDTO orderDto = convertToOrderDTO(order);
+        ticketService.createTicket(orderDto, itemsDto);
+        return convertToOrderDTO(order); // Assuming convertToOrderDTO method is implemented correctly
     }
 
 
@@ -142,6 +166,21 @@ public class OrderService {
         order.setStatus("closed");
         orderRepository.save(order);
         return convertToOrderDTO(order);  // Assuming you have a method to convert Order to OrderDTO
+    }
+
+    public boolean addCommentToOrderItem(Long orderId, Long itemId, String commentary) {
+        Order order = orderRepository.findById(Math.toIntExact(orderId))
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+
+        OrderItem orderItem = order.getOrderItems().stream()
+                .filter(item -> item.getItem().getItemId() == Math.toIntExact(itemId)) // Use == for primitive int comparison
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Item not found in order"));
+
+        orderItem.setItemCommentary(commentary);
+        orderRepository.save(order);
+
+        return true;
     }
 
 }

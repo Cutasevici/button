@@ -21,6 +21,12 @@ public class OrderItem {
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;  // This retains a reference to Item
 
+    @Column(name = "processed", nullable = false)
+    private Boolean processed = false; // Default value set to false
+
+    @Column(name = "item_commentary")
+    private String itemCommentary;
+
     @Column(nullable = false)
     private Integer quantity;
 
@@ -71,6 +77,22 @@ public class OrderItem {
         if (item != null && quantity != null) {
             this.lineTotal = item.getItemPrice() * quantity;
         }
+    }
+
+    public String getItemCommentary() {
+        return itemCommentary;
+    }
+
+    public void setItemCommentary(String itemCommentary) {
+        this.itemCommentary = itemCommentary;
+    }
+
+    public Boolean getProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(Boolean processed) {
+        this.processed = processed;
     }
 
     public Integer getLineTotal() {

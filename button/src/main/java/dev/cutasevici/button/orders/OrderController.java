@@ -31,4 +31,21 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/addComment")
+    public ResponseEntity<ApiResponse> addCommentToOrderItem(@RequestBody Long orderId, Long itemId, String commentary) {
+        try {
+            boolean result = orderService.addCommentToOrderItem(orderId, itemId, commentary);
+            if (result) {
+                ApiResponse apiResponse = new ApiResponse(true, "Comment added successfully");
+                return ResponseEntity.ok(apiResponse);
+            } else {
+                ApiResponse apiResponse = new ApiResponse(false, "Failed to add comment");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+            }
+        } catch (Exception e) {
+            ApiResponse apiResponse = new ApiResponse(false, "Error adding comment: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
+        }
+    }
+
 }
